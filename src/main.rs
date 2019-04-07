@@ -24,10 +24,28 @@ fn play_file(file: &String) {
     }
 }
 
-fn get_file_list(folder: String) -> Vec<String> {
-    let mut sound_files: Vec<String> = vec![];
+fn is_audio_file(file_ext: &str) -> bool {
+    match file_ext {
+        "wav" => true,
+        "flac" => true,
+        _ => false
+    }
+}
+
+fn get_file_list(folder: String, mut sound_files: Vec<String>) -> Vec<String> {
     for p in fs::read_dir(folder.as_str()).unwrap() {
-        sound_files.push(p.unwrap().path().display().to_string());
+        let p_unw = p.unwrap();
+        let file_path = p_unw.path().display().to_string();
+
+        if p_unw.file_type().unwrap().is_dir() {
+            sound_files = get_file_list(file_path, sound_files);
+        } else {
+            let parts: Vec<&str> = file_path.split(".").collect();
+            if is_audio_file(parts.last().unwrap()) {
+                println!("Adding: {}", file_path);
+                sound_files.push(file_path);
+            }
+        }
     }
 
     sound_files
@@ -52,7 +70,7 @@ fn main() {
     }
 
     let folder = args.nth(1).unwrap();
-    let sound_files = get_file_list(folder);
+    let sound_files = get_file_list(folder, vec![]);
 
     let mut next_play_time = time::Instant::now();
 
