@@ -1,17 +1,22 @@
 extern crate ears;
 extern crate rand;
+extern crate colored;
+
+use colored::Colorize;
 use ears::{Music, AudioController};
 use rand::Rng;
 
 use std::thread::sleep;
-use std::{time, fs};
+use std::{time, fs, env};
 
-const time_wait_lower: u64 = 60;
-const time_wait_upper: u64 = 300;
+const TIME_WAIT_LOWER: u64 = 60;
+const TIME_WAIT_UPPER: u64 = 300;
 
 fn play_file(file: &String) {
     let mut music = Music::new(file.as_str()).unwrap();
     music.play();
+
+    println!("{}: {}", "Playing".bold(), file.bold().cyan());
 
     let loop_sleep_time = time::Duration::new(1, 0);
     while music.is_playing() {
@@ -29,13 +34,24 @@ fn get_file_list(folder: String) -> Vec<String> {
 }
 
 fn get_next_play_time() -> time::Instant {
-    let wait = rand::thread_rng().gen_range(time_wait_lower, time_wait_upper);
-    println!("Next in: {} seconds.", wait);
+    let wait = rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER);
+    println!("Next in: {} seconds.", wait.to_string().bold().blue());
     time::Instant::now() + time::Duration::new(wait, 0)
 }
 
+fn print_usage() {
+    println!("{}: ambient-pl {}", "Usage".bold(), "[directory]".bold().yellow());
+}
+
 fn main() {
-    let folder = String::from("/home/josh/minecraft_ost/");
+    let mut args = env::args();
+    if args.len() != 2 {
+        println!("ambient-pl: {}", "Incorrect number of arguments.".bold());
+        print_usage();
+        std::process::exit(1);
+    }
+
+    let folder = args.nth(1).unwrap();
     let sound_files = get_file_list(folder);
 
     let mut next_play_time = time::Instant::now();

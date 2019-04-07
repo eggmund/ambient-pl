@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 ears = "0.5.1"
 rand = "0.6.5"
+colored = "1.7"
