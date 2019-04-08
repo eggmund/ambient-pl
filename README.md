@@ -27,3 +27,7 @@ And find the executable in `target/debug/ambient-pl`. You can then move that to 
 - ears (for playing the audio files): https://github.com/jhasse/ears
 - colored (for coloured terminal output): https://github.com/mackwic/colored
 - rand
+
+## Note:
+
+I have only tested this with .wav files so far.
