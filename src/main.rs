@@ -59,12 +59,6 @@ fn get_file_list(folder: String, recurse: bool, mut sound_files: Vec<String>) ->
     sound_files
 }
 
-fn get_next_play_time() -> time::Instant {
-    let wait = rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER);
-    println!("Next in: {} seconds.", wait.to_string().bold().blue());
-    time::Instant::now() + time::Duration::new(wait, 0)
-}
-
 fn parse_arguments() -> (String, bool) {  // Returns the folder, and whever to search recursively
     let args = env::args();
     let arg_list: Vec<String> = env::args().collect();
@@ -72,8 +66,7 @@ fn parse_arguments() -> (String, bool) {  // Returns the folder, and whever to s
     let mut folder = String::from("");
 
     for a in arg_list.iter() {
-        if a.contains("-") {
-            println!("Arg: {}", a);
+        if a.contains("-") && !a.contains("/") {
             match a.as_ref() {
                 "-r" | "--recurse" => {recurse = true; println!("egg")},
                 "--help" => info::print_help(),
@@ -107,14 +100,12 @@ fn main() {
 
     let main_loop_sleep_time = time::Duration::new(1, 0);
 
-    let mut next_play_time = time::Instant::now();
+    let mut next_play_wait = time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
 
     loop {
-        if time::Instant::now() >= next_play_time {
-            play_file(&sound_files[rand::thread_rng().gen_range(0, sound_files.len())]); // Blocks while music is playing
-            next_play_time = get_next_play_time();
-        } else {
-            sleep(main_loop_sleep_time);
-        }
+        println!("Next in: {} seconds.", next_play_wait.as_secs().to_string().bold().blue());
+        sleep(next_play_wait);
+        play_file(&sound_files[rand::thread_rng().gen_range(0, sound_files.len())]); // Blocks while music is playing
+        next_play_wait = time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
     }
 }
