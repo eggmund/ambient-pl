@@ -13,6 +13,15 @@ ambient-pl -r <folder_here>
 
 `-r` is optional, and is for recursively adding music.
 
+## Supported formats:
+
+- wav
+- flac
+- ogg
+- raw
+
+However, I have only tested it with wav and ogg files.
+
 ## Installation
 
 Change directory to where you cloned the repository and run:
@@ -27,7 +36,3 @@ And find the executable in `target/debug/ambient-pl`. You can then move that to 
 - ears (for playing the audio files): https://github.com/jhasse/ears
 - colored (for coloured terminal output): https://github.com/mackwic/colored
 - rand
-
-## Note:
-
-I have only tested this with .wav files so far.
