@@ -101,12 +101,12 @@ fn main() {
         std::process::exit(1);
     }
 
-    let mut next_play_wait = time::Duration::new(0, 0);//time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
+    let mut next_play_wait = time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
 
     loop {
         println!("Next in: {} seconds.", next_play_wait.as_secs().to_string().bold().blue());
         sleep(next_play_wait);
         play_file(&sound_files[rand::thread_rng().gen_range(0, sound_files.len())]); // Blocks while music is playing
-        //next_play_wait = time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
+        next_play_wait = time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
     }
 }
