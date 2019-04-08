@@ -1,5 +1,5 @@
 # ambient-pl
-An audio player that runs in the background and randomly picks tracks from a folder to play at random times.
+An audio player that randomly picks tracks to play at random intervals.
 
 Inspired by the way Minecraft music randomly fades in while playing.
 
@@ -11,7 +11,7 @@ Play songs from a folder:
 ambient-pl -r <folder_here>
 ```
 
-`-r` is optional, and is for recursively adding music.
+`-r` is optional, and is for searching sub-folders for music.
 
 ## Supported formats:
 
