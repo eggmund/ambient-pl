@@ -79,13 +79,13 @@ fn parse_arguments() -> (String, bool) {  // Returns the folder, and whever to s
     }
 
     if args.len() < 2 {
-        err_msg!("Not enough arguments.".bold());
+        err_msg!("Not enough arguments.");
         info::print_usage(true);
         std::process::exit(1);
     }
 
     if folder.as_str() == "" {
-        err_msg!("Folder not specified.".bold());
+        err_msg!("Folder not specified.");
         info::print_usage(true);
         std::process::exit(1);
     }
@@ -96,6 +96,11 @@ fn parse_arguments() -> (String, bool) {  // Returns the folder, and whever to s
 fn main() {
     let (folder, recurse) = parse_arguments();
     let sound_files = get_file_list(folder, recurse, vec![]);
+
+    if sound_files.len() <= 0 {
+        err_msg!("No music files found. Try the '-r' flag for finding music in folders.");
+        std::process::exit(1);
+    }
 
     let mut next_play_wait = time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
 
