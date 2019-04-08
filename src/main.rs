@@ -68,7 +68,7 @@ fn parse_arguments() -> (String, bool) {  // Returns the folder, and whever to s
     for a in arg_list.iter() {
         if a.contains("-") && !a.contains("/") {
             match a.as_ref() {
-                "-r" | "--recurse" => {recurse = true; println!("egg")},
+                "-r" | "--recurse" => recurse = true,
                 "--help" => info::print_help(),
                 "" => (),
                 _ => (),
@@ -90,15 +90,12 @@ fn parse_arguments() -> (String, bool) {  // Returns the folder, and whever to s
         std::process::exit(1);
     }
 
-    return (folder, recurse)
+    (folder, recurse)
 }
 
 fn main() {
     let (folder, recurse) = parse_arguments();
-
     let sound_files = get_file_list(folder, recurse, vec![]);
-
-    let main_loop_sleep_time = time::Duration::new(1, 0);
 
     let mut next_play_wait = time::Duration::new(rand::thread_rng().gen_range(TIME_WAIT_LOWER, TIME_WAIT_UPPER), 0);
 
