@@ -9,8 +9,16 @@ use rand::Rng;
 use std::thread::sleep;
 use std::{time, fs, env};
 
+mod info;
+
 const TIME_WAIT_LOWER: u64 = 60;
 const TIME_WAIT_UPPER: u64 = 300;
+
+macro_rules! err_msg {
+    ($x:expr) => {
+        println!("ambient-pl: {}", $x.bold());
+    }
+}
 
 fn play_file(file: &String) {
     let mut music = Music::new(file.as_str()).unwrap();
@@ -32,13 +40,13 @@ fn is_audio_file(file_ext: &str) -> bool {
     }
 }
 
-fn get_file_list(folder: String, mut sound_files: Vec<String>) -> Vec<String> {
+fn get_file_list(folder: String, recurse: bool, mut sound_files: Vec<String>) -> Vec<String> {
     for p in fs::read_dir(folder.as_str()).unwrap() {
         let p_unw = p.unwrap();
         let file_path = p_unw.path().display().to_string();
 
-        if p_unw.file_type().unwrap().is_dir() {
-            sound_files = get_file_list(file_path, sound_files);
+        if recurse && p_unw.file_type().unwrap().is_dir() {
+            sound_files = get_file_list(file_path, recurse, sound_files);
         } else {
             let parts: Vec<&str> = file_path.split(".").collect();
             if is_audio_file(parts.last().unwrap()) {
@@ -57,27 +65,56 @@ fn get_next_play_time() -> time::Instant {
     time::Instant::now() + time::Duration::new(wait, 0)
 }
 
-fn print_usage() {
-    println!("{}: ambient-pl {}", "Usage".bold(), "[directory]".bold().yellow());
-}
+fn parse_arguments() -> (String, bool) {  // Returns the folder, and whever to search recursively
+    let args = env::args();
+    let arg_list: Vec<String> = env::args().collect();
+    let mut recurse = false;
+    let mut folder = String::from("");
 
-fn main() {
-    let mut args = env::args();
-    if args.len() != 2 {
-        println!("ambient-pl: {}", "Incorrect number of arguments.".bold());
-        print_usage();
+    for a in arg_list.iter() {
+        if a.contains("-") {
+            println!("Arg: {}", a);
+            match a.as_ref() {
+                "-r" | "--recurse" => {recurse = true; println!("egg")},
+                "--help" => info::print_help(),
+                "" => (),
+                _ => (),
+            }
+        } else {
+            folder = a.to_string();
+        }
+    }
+
+    if args.len() < 2 {
+        err_msg!("Not enough arguments.".bold());
+        info::print_usage(true);
         std::process::exit(1);
     }
 
-    let folder = args.nth(1).unwrap();
-    let sound_files = get_file_list(folder, vec![]);
+    if folder.as_str() == "" {
+        err_msg!("Folder not specified.".bold());
+        info::print_usage(true);
+        std::process::exit(1);
+    }
+
+    return (folder, recurse)
+}
+
+fn main() {
+    let (folder, recurse) = parse_arguments();
+
+    let sound_files = get_file_list(folder, recurse, vec![]);
+
+    let main_loop_sleep_time = time::Duration::new(1, 0);
 
     let mut next_play_time = time::Instant::now();
 
     loop {
         if time::Instant::now() >= next_play_time {
-            play_file(&sound_files[rand::thread_rng().gen_range(0, sound_files.len())]);
+            play_file(&sound_files[rand::thread_rng().gen_range(0, sound_files.len())]); // Blocks while music is playing
             next_play_time = get_next_play_time();
+        } else {
+            sleep(main_loop_sleep_time);
         }
     }
 }
